@@ -1,49 +1,79 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@{
+    var autenticado = User.Identity?.IsAuthenticated == true;
+    var nombre = User.FindFirst("NombreCompleto")?.Value ?? User.Identity?.Name;
+    var rol = User.FindFirst(ClaimTypes.Role)?.Value;
+    var esAdmin = User.IsInRole("ADMIN");
+}
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - BacVentas.Web</title>
+    <title>@ViewData["Title"] - BacVentas</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/BacVentas.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">BacVentas.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+            <div class="container">
+                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">BacVentas</a>
+                @if (autenticado)
+                {
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu"
+                            aria-controls="menu" aria-expanded="false" aria-label="Menú">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="menu">
+                        <ul class="navbar-nav me-auto">
+                            @* El menú se arma según el rol: el OPERADOR solo ve Ventas. *@
+                            @if (esAdmin)
+                            {
+                                <li class="nav-item"><a class="nav-link" asp-controller="Productos" asp-action="Index">Productos</a></li>
+                            }
+                            <li class="nav-item"><a class="nav-link" asp-controller="Ventas" asp-action="Index">Ventas</a></li>
+                            @if (esAdmin)
+                            {
+                                <li class="nav-item"><a class="nav-link" asp-controller="Reportes" asp-action="Index">Reportes</a></li>
+                            }
+                        </ul>
+                        <span class="navbar-text me-3">
+                            @nombre <span class="badge bg-secondary">@rol</span>
+                        </span>
+                        @* Logout por POST (con token antiforgery), no por un enlace GET. *@
+                        <form asp-controller="Cuenta" asp-action="Logout" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-light btn-sm">Cerrar sesión</button>
+                        </form>
+                    </div>
+                }
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - BacVentas.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
+    <main class="container pb-5">
+        @RenderBody()
+    </main>
+
+    <footer class="border-top text-muted py-3">
+        <div class="container small">&copy; @DateTime.Now.Year - BacVentas · .NET 8 · SQL Server</div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @* Mensajes de TempData (después de crear/editar) mostrados con SweetAlert2.
+       JsonSerializer escapa el texto para que sea seguro dentro de JavaScript. *@
+    @if (TempData["Exito"] is string exito)
+    {
+        <script>Swal.fire({ icon: 'success', title: 'Listo', text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(exito)), timer: 2500 });</script>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <script>Swal.fire({ icon: 'error', title: 'Error', text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(error)) });</script>
+    }
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -1,22 +1,29 @@
 html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
+  font-size: 15px;
   position: relative;
   min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+  background-color: #f5f6f8;
+}
+
+.card {
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+}
+
+.table th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Quita las flechas de los input type=number (más limpio para código y cantidad) */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
 }

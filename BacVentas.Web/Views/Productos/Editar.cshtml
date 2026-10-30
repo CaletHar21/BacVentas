@@ -1,0 +1,20 @@
+@model ProductoVm
+@{
+    ViewData["Title"] = "Editar producto";
+}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h1 class="h3 mb-3">Editar producto @Model.IdPro.ToString("D3")</h1>
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="Editar" asp-route-id="@Model.IdPro" method="post" novalidate>
+                    <partial name="_Formulario" model="Model" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

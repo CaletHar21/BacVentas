@@ -1,0 +1,84 @@
+@model ReporteVentasVm
+@{
+    ViewData["Title"] = "Reportes de ventas";
+    var desde = Model.Desde?.ToString("yyyy-MM-dd");
+    var hasta = Model.Hasta?.ToString("yyyy-MM-dd");
+}
+<h1 class="h3 mb-3">Reportes de ventas</h1>
+
+<div class="card mb-3">
+    <div class="card-body">
+        @* Formulario GET: los filtros quedan en la URL y se reutilizan para PDF y Excel. *@
+        <form method="get" asp-action="Index" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label for="desde" class="form-label">Desde</label>
+                <input type="date" id="desde" name="desde" value="@desde" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label for="hasta" class="form-label">Hasta</label>
+                <input type="date" id="hasta" name="hasta" value="@hasta" class="form-control" />
+            </div>
+            <div class="col-md-6 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
+                <a asp-action="Pdf" asp-route-desde="@desde" asp-route-hasta="@hasta" class="btn btn-danger ms-auto">Exportar PDF</a>
+                <a asp-action="Excel" asp-route-desde="@desde" asp-route-hasta="@hasta" class="btn btn-success">Exportar Excel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>No.</th>
+                    <th>Fecha</th>
+                    <th>Vendedor</th>
+                    <th class="text-end">Subtotal</th>
+                    <th class="text-end">IVA</th>
+                    <th class="text-end">Total</th>
+                    <th class="text-center">Detalle</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Ventas.Count == 0)
+                {
+                    <tr><td colspan="7" class="text-center text-muted py-4">No hay ventas en el período seleccionado.</td></tr>
+                }
+                @foreach (var v in Model.Ventas)
+                {
+                    <tr>
+                        <td>@v.IdVenta.ToString("D5")</td>
+                        <td>@v.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@v.Vendedor</td>
+                        <td class="text-end">$@v.Subtotal.ToString("N2")</td>
+                        <td class="text-end">$@v.Iva.ToString("N2")</td>
+                        <td class="text-end">$@v.Total.ToString("N2")</td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-outline-primary btn-detalle"
+                                    data-id="@v.IdVenta" data-url="@Url.Action("Detalle", new { id = v.IdVenta })">Ver</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            @if (Model.Ventas.Count > 0)
+            {
+                <tfoot class="table-light fw-bold">
+                    <tr>
+                        <td colspan="3" class="text-end">TOTALES (@Model.Ventas.Count ventas)</td>
+                        <td class="text-end">$@Model.Ventas.Sum(v => v.Subtotal).ToString("N2")</td>
+                        <td class="text-end">$@Model.Ventas.Sum(v => v.Iva).ToString("N2")</td>
+                        <td class="text-end">$@Model.Ventas.Sum(v => v.Total).ToString("N2")</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            }
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/reportes.js" asp-append-version="true"></script>
+}

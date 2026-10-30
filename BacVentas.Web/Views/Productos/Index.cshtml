@@ -1,0 +1,52 @@
+@model List<ProductoVm>
+@{
+    ViewData["Title"] = "Productos";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Productos</h1>
+    <a asp-action="Crear" class="btn btn-primary">+ Nuevo producto</a>
+</div>
+
+@* Token antiforgery para las peticiones fetch (eliminar). *@
+@Html.AntiForgeryToken()
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="tablaProductos">
+            <thead class="table-light">
+                <tr>
+                    <th style="width:100px">Código</th>
+                    <th>Producto</th>
+                    <th class="text-end" style="width:140px">Precio</th>
+                    <th class="text-center" style="width:180px">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count == 0)
+                {
+                    <tr><td colspan="4" class="text-center text-muted py-4">No hay productos registrados.</td></tr>
+                }
+                @foreach (var p in Model)
+                {
+                    <tr id="fila-@p.IdPro">
+                        <td>@p.IdPro.ToString("D3")</td>
+                        <td>@p.Nombre</td>
+                        <td class="text-end">$@p.Precio.ToString("N2")</td>
+                        <td class="text-center">
+                            <a asp-action="Editar" asp-route-id="@p.IdPro" class="btn btn-sm btn-outline-secondary">Editar</a>
+                            <button type="button" class="btn btn-sm btn-outline-danger btn-eliminar"
+                                    data-id="@p.IdPro" data-nombre="@p.Nombre"
+                                    data-url="@Url.Action("Eliminar", new { id = p.IdPro })">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/productos.js" asp-append-version="true"></script>
+}

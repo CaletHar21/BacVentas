@@ -1,0 +1,85 @@
+@{
+    ViewData["Title"] = "Registro de ventas";
+    var vendedor = User.FindFirst("NombreCompleto")?.Value;
+}
+<h1 class="h3 mb-3">Registro de ventas</h1>
+
+@Html.AntiForgeryToken()
+
+@* URLs generadas por el servidor para que ventas.js no tenga rutas "quemadas". *@
+<div id="config" class="d-none"
+     data-buscar-url="@Url.Action("BuscarProducto", "Ventas")"
+     data-registrar-url="@Url.Action("Registrar", "Ventas")"></div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row g-2 mb-3 text-muted small">
+            <div class="col-md-6">Vendedor: <strong class="text-dark">@vendedor</strong></div>
+            <div class="col-md-6 text-md-end">Fecha: <strong class="text-dark">@DateTime.Now.ToString("dd/MM/yyyy")</strong></div>
+        </div>
+
+        <div class="row g-2 align-items-end">
+            <div class="col-md-2">
+                <label for="codigo" class="form-label">Código</label>
+                <div class="input-group">
+                    <input type="number" id="codigo" class="form-control" min="1" placeholder="001" autofocus />
+                    <button type="button" id="btnBuscar" class="btn btn-outline-secondary" title="Buscar">🔍</button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label for="nombreProducto" class="form-label">Producto</label>
+                <input type="text" id="nombreProducto" class="form-control" readonly />
+            </div>
+            <div class="col-md-2">
+                <label for="precio" class="form-label">Precio</label>
+                <input type="text" id="precio" class="form-control text-end" readonly />
+            </div>
+            <div class="col-md-2">
+                <label for="cantidad" class="form-label">Cantidad</label>
+                <input type="number" id="cantidad" class="form-control text-end" min="1" value="1" />
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="button" id="btnAgregar" class="btn btn-success" disabled>Agregar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0" id="tablaDetalle">
+            <thead class="table-light">
+                <tr>
+                    <th>Código</th>
+                    <th>Producto</th>
+                    <th class="text-end">Cantidad</th>
+                    <th class="text-end">Precio</th>
+                    <th class="text-end">Subtotal</th>
+                    <th class="text-end">IVA (13%)</th>
+                    <th class="text-end">Total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="filaVacia"><td colspan="8" class="text-center text-muted py-4">Agregue productos a la venta.</td></tr>
+            </tbody>
+            <tfoot class="table-light fw-bold">
+                <tr>
+                    <td colspan="4" class="text-end">TOTALES</td>
+                    <td class="text-end" id="totSubtotal">$0.00</td>
+                    <td class="text-end" id="totIva">$0.00</td>
+                    <td class="text-end" id="totTotal">$0.00</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="card-footer d-flex justify-content-end gap-2">
+        <button type="button" id="btnLimpiar" class="btn btn-outline-secondary">Cancelar</button>
+        <button type="button" id="btnRegistrar" class="btn btn-primary" disabled>Registrar venta</button>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/ventas.js" asp-append-version="true"></script>
+}
